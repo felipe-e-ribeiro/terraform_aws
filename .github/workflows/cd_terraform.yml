@@ -7,7 +7,7 @@ on:
 jobs:
   terraform-plan:
     name: Plan Terraform
-    runs-on: hashicorp/terraform:light
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -61,7 +61,7 @@ jobs:
         run: exit 1
   terraform-apply:
     name: Apply Terraform
-    runs-on: hashicorp/terraform:light
+    runs-on: ubuntu-latest
     steps:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
