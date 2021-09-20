@@ -53,14 +53,3 @@ jobs:
       uses: juliangruber/sleep-action@v1
       with:
         time: 30s
-
-    - name: generate secret cert for ansible
-      run: |
-          echo ${{ secrets.ANSIBLE_SECRET_FILE }} | base64 -d > ansible/swarm.cer
-          chmod 400 ansible/swarm.cer
-      shell: bash
-
-    - name: run ansible playbook
-      run: |
-        cd ansible
-        ansible-playbook main.yaml
