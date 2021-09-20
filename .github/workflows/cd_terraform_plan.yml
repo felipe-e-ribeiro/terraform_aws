@@ -1,4 +1,4 @@
-name: Setup Env
+name: 'Setup Env'
 on:
   pull_request:
 
