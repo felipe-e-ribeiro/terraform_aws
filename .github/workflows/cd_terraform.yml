@@ -1,7 +1,5 @@
-name: Deploy
+name: Setup Env
 on:
-  push:
-    branches: [main]
   pull_request:
 
 jobs:
@@ -59,6 +57,11 @@ jobs:
       - name : Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
+ on:
+   push:
+     branches: [main]
+     
+jobs:
   terraform-apply:
     name: Apply Terraform
     runs-on: ubuntu-latest
