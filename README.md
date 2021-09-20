@@ -1,2 +1,2 @@
 # terraform_aws
-Deploy Terraform AWS
+Deploy de terraform em AWS com GitHub Actions configurado.
