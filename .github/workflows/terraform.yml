@@ -6,7 +6,7 @@ on:
 
 jobs:
   terraform-process:
-    name: Plan Terraform
+    name: Terraform Process
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
