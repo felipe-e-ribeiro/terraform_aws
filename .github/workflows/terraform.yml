@@ -1,72 +1,66 @@
-# This is a basic workflow to help you get started with Actions
-
-name: 'Terraform'
-
-# Controls when the workflow will run
+name: Deploy
 on:
   push:
-    branches:
-      - main
-  pull_request:
-  
-  jobs:
-  terraform:
-    name: 'Terraform'
+    branches: [main]
+
+jobs:
+  terraform-plan:
+    name: Plan Terraform
     runs-on: ubuntu-latest
-  steps:
-   - name: Checkout
-   uses: actions/checkout@v2
-   - name: Setup Terraform
-  uses: hashicorp/setup-terraform@v1
-  with:
-    # terraform_version: 0.13.0
-    cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-    - name: Terraform Format
-  id: fmt
-  run: terraform fmt -check
-- name: Terraform Init
-  id: init
-  run: terraform init
-- name: Terraform Validate
-  id: validate
-  run: terraform validate -no-color
-  - name: Terraform Plan
-  id: plan
-  if: github.event_name == 'pull_request'
-  run: terraform plan -no-color
-  continue-on-error: true
-  - name: Update Pull Request
-  uses: actions/github-script@0.9.0
-  if: github.event_name == 'pull_request'
-  env:
-    PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-  with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
-    script: |
-      const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-      #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-      #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-      #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+    steps:
+      - uses: actions/checkout@v2
+      - name: Terraform init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: terraform init -input=false
 
-      <details><summary>Show Plan</summary>
+      - name: Terraform validation
+        run: terraform validate
 
-      \`\`\`\n
-      ${process.env.PLAN}
-      \`\`\`
+      - name: Terraform plan
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: terraform plan -input=false  
 
-      </details>
+  deploy-terraform:
+    name: Apply Terraform
+    needs: terraform-plan
+    runs-on: ubuntu-latest
+    environment:
+      name: deploy
+      url: ${{ steps.step_id.outputs.url_output }}
+    steps:
+    - uses: actions/checkout@v1
 
-      *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+    - name: Terraform init
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: terraform init -input=false
 
-      github.issues.createComment({
-        issue_number: context.issue.number,
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        body: output
-      })
-      - name: Terraform Plan Status
-  if: steps.plan.outcome == 'failure'
-  run: exit 1
-- name: Terraform Apply
-  if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-  run: terraform apply -auto-approve
+    - name: Terraform validation
+      run: terraform validate
+
+    - name: Terraform apply
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: terraform apply -auto-approve -input=false      
+      
+    - name: Sleep for 30s
+      uses: juliangruber/sleep-action@v1
+      with:
+        time: 30s
+
+    - name: generate secret cert for ansible
+      run: |
+          echo ${{ secrets.ANSIBLE_SECRET_FILE }} | base64 -d > ansible/swarm.cer
+          chmod 400 ansible/swarm.cer
+      shell: bash
+
+    - name: run ansible playbook
+      run: |
+        cd ansible
+        ansible-playbook main.yaml
