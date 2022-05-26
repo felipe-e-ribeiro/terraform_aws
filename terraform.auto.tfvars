@@ -1,1 +1,1 @@
-instance_enabled = 0
+instance_enabled = 1
