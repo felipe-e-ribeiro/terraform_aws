@@ -1,5 +1,5 @@
 provider "aws" {
-  region  = "us-east-2"
+  region = "us-east-2"
 }
 
 terraform {
@@ -11,6 +11,6 @@ terraform {
 }
 
 module "instance" {
-  source = "./instances"
+  source           = "./instances"
   instance_enabled = var.instance_enabled
 }

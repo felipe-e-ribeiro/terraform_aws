@@ -1,3 +1,3 @@
 variable "instance_enabled" {
-    type = string
+  type = string
 }
