@@ -1,6 +1,5 @@
 provider "aws" {
   region  = "us-east-2"
-  version = "~> 2.0"
 }
 
 terraform {
@@ -9,4 +8,9 @@ terraform {
     key    = "terraform-test.tfstate"
     region = "us-east-2"
   }
+}
+
+module "instance" {
+  source = "./instances"
+  instance_enabled = var.instance_enabled
 }
