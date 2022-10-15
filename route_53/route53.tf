@@ -10,3 +10,15 @@ resource "aws_route53_record" "dns_entry" {
   ttl     = each.value.ttl
   records = each.value.resolve
 }
+
+data "aws_route53_zone" "selected" {
+  name         = var.domain_primary
+}
+
+output "dns_ns" {
+  value = data.aws_route53_zone.selected.name_servers
+}
+
+output "dns_info" {
+  value = aws_route53_record.dns_entry
+}

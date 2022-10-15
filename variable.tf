@@ -3,14 +3,14 @@ variable "instance_enabled" {
 }
 
 variable "domain_primary" {
-    type = string
+  type = string
 }
 
 variable "dns_entry" {
   type = map(object({
     dns_name = string
     resolve  = list(string)
-    type  = string
-    ttl = number
+    type     = string
+    ttl      = number
   }))
 }
