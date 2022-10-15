@@ -14,3 +14,9 @@ module "instance" {
   source           = "./instances"
   instance_enabled = var.instance_enabled
 }
+
+module "route53" {
+  source           = "./route_53"
+  domain_primary = var.domain_primary
+  dns_entry   = var.dns_entry
+}

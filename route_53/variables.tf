@@ -1,10 +1,7 @@
-variable "instance_enabled" {
-  type = string
-}
-
 variable "domain_primary" {
     type = string
 }
+
 
 variable "dns_entry" {
   type = map(object({
