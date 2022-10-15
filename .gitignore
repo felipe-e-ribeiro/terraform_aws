@@ -1,4 +1,5 @@
 .env
 .terraform/
 .terraform.lock.hcl
-terraform.auto.*
+./terraform.auto.tfvars
+**/.terraform/*
